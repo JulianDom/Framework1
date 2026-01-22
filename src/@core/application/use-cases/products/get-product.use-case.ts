@@ -5,13 +5,9 @@ export interface GetProductOutput {
   id: string;
   name: string;
   description: string | null;
-  sku: string;
-  barcode: string | null;
-  presentation: string;
-  unitPrice: number;
-  category: string | null;
   brand: string | null;
-  imageUrl: string | null;
+  presentation: string;
+  price: number;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -36,13 +32,9 @@ export class GetProductUseCase {
       id: product.id!,
       name: product.name,
       description: product.description,
-      sku: product.sku,
-      barcode: product.barcode,
-      presentation: product.presentation,
-      unitPrice: product.unitPrice,
-      category: product.category,
       brand: product.brand,
-      imageUrl: product.imageUrl,
+      presentation: product.presentation,
+      price: product.price,
       active: product.active,
       createdAt: product.createdAt!,
       updatedAt: product.updatedAt!,

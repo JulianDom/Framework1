@@ -74,7 +74,8 @@ export class StoresController {
       page: query.page,
       limit: query.limit,
       search: query.search,
-      city: query.city,
+      locality: query.locality,
+      zone: query.zone,
       activeOnly: query.activeOnly,
     });
   }
@@ -92,21 +93,12 @@ export class StoresController {
   @ApiOperation({ summary: 'Create a new store (active by default)' })
   @ApiBody({ type: CreateStoreDto })
   @ApiResponse({ status: 201, description: 'Store created', type: StoreResponseDto })
-  @ApiResponse({ status: 409, description: 'Code or name+address already exists' })
+  @ApiResponse({ status: 409, description: 'Name+locality already exists' })
   async createStore(@Body() dto: CreateStoreDto): Promise<StoreResponseDto> {
     return this.createStoreUseCase.execute({
       name: dto.name,
-      code: dto.code,
-      address: dto.address,
-      city: dto.city,
-      state: dto.state,
-      zipCode: dto.zipCode,
-      country: dto.country,
-      latitude: dto.latitude,
-      longitude: dto.longitude,
-      phone: dto.phone,
-      email: dto.email,
-      metadata: dto.metadata,
+      locality: dto.locality,
+      zone: dto.zone,
     });
   }
 
@@ -116,7 +108,7 @@ export class StoresController {
   @ApiBody({ type: UpdateStoreDto })
   @ApiResponse({ status: 200, description: 'Store updated', type: StoreResponseDto })
   @ApiResponse({ status: 404, description: 'Store not found' })
-  @ApiResponse({ status: 409, description: 'Name+address already exists' })
+  @ApiResponse({ status: 409, description: 'Name+locality already exists' })
   async updateStore(
     @Param('id') id: string,
     @Body() dto: UpdateStoreDto,
@@ -124,16 +116,8 @@ export class StoresController {
     return this.updateStoreUseCase.execute({
       storeId: id,
       name: dto.name,
-      address: dto.address,
-      city: dto.city,
-      state: dto.state,
-      zipCode: dto.zipCode,
-      country: dto.country,
-      latitude: dto.latitude,
-      longitude: dto.longitude,
-      phone: dto.phone,
-      email: dto.email,
-      metadata: dto.metadata,
+      locality: dto.locality,
+      zone: dto.zone,
     });
   }
 

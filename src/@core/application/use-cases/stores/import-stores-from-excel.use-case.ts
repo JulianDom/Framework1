@@ -3,14 +3,8 @@ import { StoreEntity } from '@core/domain/entities';
 
 export interface ExcelStoreRow {
   name: string;
-  code: string;
-  address: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  country?: string;
-  phone?: string;
-  email?: string;
+  locality: string;
+  zone?: string;
 }
 
 export interface ImportStoresInput {
@@ -20,15 +14,15 @@ export interface ImportStoresInput {
 export interface ImportStoresResult {
   created: number;
   skipped: number;
-  errors: Array<{ row: number; code: string; error: string }>;
+  errors: Array<{ row: number; name: string; error: string }>;
 }
 
 /**
  * ImportStoresFromExcelUseCase
  *
- * Importa locales desde un array (típicamente parseado de Excel).
+ * Importa locales desde un array (tipicamente parseado de Excel).
  * Salta duplicados y reporta errores por fila.
- * Todos los locales importados están activos por defecto.
+ * Todos los locales importados estan activos por defecto.
  */
 export class ImportStoresFromExcelUseCase {
   constructor(private readonly storeRepository: IStoreRepository) {}
@@ -48,32 +42,25 @@ export class ImportStoresFromExcelUseCase {
       if (!row) {
         result.errors.push({
           row: rowNumber,
-          code: 'N/A',
+          name: 'N/A',
           error: 'Empty row',
         });
         continue;
       }
 
       try {
-        // Validar datos mínimos
-        if (!row.name || !row.code || !row.address) {
+        // Validar datos minimos
+        if (!row.name || !row.locality) {
           result.errors.push({
             row: rowNumber,
-            code: row.code || 'N/A',
-            error: 'Missing required fields (name, code, address)',
+            name: row.name || 'N/A',
+            error: 'Missing required fields (name, locality)',
           });
           continue;
         }
 
-        // Verificar código duplicado
-        const existsByCode = await this.storeRepository.existsByCode(row.code);
-        if (existsByCode) {
-          result.skipped++;
-          continue;
-        }
-
-        // Verificar duplicado por nombre + dirección
-        const existsDuplicate = await this.storeRepository.existsDuplicate(row.name, row.address);
+        // Verificar duplicado por nombre + localidad
+        const existsDuplicate = await this.storeRepository.existsDuplicate(row.name, row.locality);
         if (existsDuplicate) {
           result.skipped++;
           continue;
@@ -82,18 +69,9 @@ export class ImportStoresFromExcelUseCase {
         // Crear entidad - activo por defecto
         const store = StoreEntity.create({
           name: row.name,
-          code: row.code,
-          address: row.address,
-          city: row.city ?? null,
-          state: row.state ?? null,
-          zipCode: row.zipCode ?? null,
-          country: row.country ?? 'Argentina',
-          latitude: null,
-          longitude: null,
-          phone: row.phone ?? null,
-          email: row.email ?? null,
+          locality: row.locality,
+          zone: row.zone ?? null,
           active: true,
-          metadata: null,
         });
 
         // Persistir
@@ -102,7 +80,7 @@ export class ImportStoresFromExcelUseCase {
       } catch (error) {
         result.errors.push({
           row: rowNumber,
-          code: row.code || 'N/A',
+          name: row.name || 'N/A',
           error: error instanceof Error ? error.message : 'Unknown error',
         });
       }

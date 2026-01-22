@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsArray, ValidateNested, IsOptional, MaxLength, IsEmail } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, ValidateNested, IsOptional, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ExcelStoreRowDto {
@@ -8,46 +8,17 @@ export class ExcelStoreRowDto {
   @IsNotEmpty()
   name!: string;
 
-  @ApiProperty({ description: 'Unique code', example: 'SUP-CEN-001' })
+  @ApiProperty({ description: 'Locality', example: 'Buenos Aires' })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(50)
-  code!: string;
+  @MaxLength(100)
+  locality!: string;
 
-  @ApiProperty({ description: 'Address', example: 'Av. San Martín 1234' })
-  @IsString()
-  @IsNotEmpty()
-  address!: string;
-
-  @ApiPropertyOptional({ description: 'City' })
+  @ApiPropertyOptional({ description: 'Zone', example: 'Centro' })
   @IsOptional()
   @IsString()
-  city?: string;
-
-  @ApiPropertyOptional({ description: 'State/Province' })
-  @IsOptional()
-  @IsString()
-  state?: string;
-
-  @ApiPropertyOptional({ description: 'Zip code' })
-  @IsOptional()
-  @IsString()
-  zipCode?: string;
-
-  @ApiPropertyOptional({ description: 'Country' })
-  @IsOptional()
-  @IsString()
-  country?: string;
-
-  @ApiPropertyOptional({ description: 'Phone' })
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @ApiPropertyOptional({ description: 'Email' })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
+  @MaxLength(100)
+  zone?: string;
 }
 
 export class ImportStoresDto {
@@ -62,8 +33,8 @@ export class ImportStoresErrorDto {
   @ApiProperty({ description: 'Row number in Excel' })
   row!: number;
 
-  @ApiProperty({ description: 'Code of the problematic store' })
-  code!: string;
+  @ApiProperty({ description: 'Name of the problematic store' })
+  name!: string;
 
   @ApiProperty({ description: 'Error message' })
   error!: string;

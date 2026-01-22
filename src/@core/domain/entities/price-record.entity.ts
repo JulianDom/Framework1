@@ -38,7 +38,7 @@ export interface PersistedPriceRecordProps extends PriceRecordPropsBase {
 }
 
 /**
- * Datos expandidos para visualización (con relaciones)
+ * Datos expandidos para visualizacion (con relaciones)
  */
 export interface PriceRecordWithRelations {
   id: string;
@@ -49,14 +49,14 @@ export interface PriceRecordWithRelations {
   product: {
     id: string;
     name: string;
-    sku: string;
+    brand: string | null;
     presentation: string;
   };
   store: {
     id: string;
     name: string;
-    code: string;
-    address: string;
+    locality: string;
+    zone: string | null;
   };
   operativeUser: {
     id: string;

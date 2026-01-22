@@ -8,26 +8,25 @@ import { BaseQueryWithStatusDto } from '@presentation/dto';
  *
  * DTO para filtrar y paginar productos.
  * Extiende de BaseQueryWithStatusDto que ya incluye:
- * - page, limit (paginación)
+ * - page, limit (paginacion)
  * - sort (ordenamiento: "-createdAt,name")
- * - search (búsqueda global)
+ * - search (busqueda global)
  * - activeOnly (filtro de estado)
  *
  * Ejemplos de uso desde el frontend:
  *
- * Paginación básica:
+ * Paginacion basica:
  *   GET /products?page=1&limit=20
  *
  * Ordenamiento:
- *   GET /products?sort=-createdAt          → más recientes primero
- *   GET /products?sort=name                → alfabético A-Z
- *   GET /products?sort=-unitPrice,name     → precio desc, luego nombre asc
+ *   GET /products?sort=-createdAt          -> mas recientes primero
+ *   GET /products?sort=name                -> alfabetico A-Z
+ *   GET /products?sort=-price,name         -> precio desc, luego nombre asc
  *
- * Búsqueda global (busca en name, sku, barcode, description):
+ * Busqueda global (busca en name, brand, description, presentation):
  *   GET /products?search=coca cola
  *
- * Filtros específicos:
- *   GET /products?category=bebidas
+ * Filtros especificos:
  *   GET /products?brand=Coca-Cola
  *   GET /products?activeOnly=true
  *
@@ -35,17 +34,9 @@ import { BaseQueryWithStatusDto } from '@presentation/dto';
  *   GET /products?minPrice=100&maxPrice=500
  *
  * Combinando todo:
- *   GET /products?search=cola&category=bebidas&maxPrice=200&sort=-unitPrice&page=1&limit=10&activeOnly=true
+ *   GET /products?search=cola&brand=Coca-Cola&maxPrice=200&sort=-price&page=1&limit=10&activeOnly=true
  */
 export class ProductPaginationQueryDto extends BaseQueryWithStatusDto {
-  @ApiPropertyOptional({
-    description: 'Filtrar por categoría exacta',
-    example: 'bebidas',
-  })
-  @IsOptional()
-  @IsString()
-  category?: string;
-
   @ApiPropertyOptional({
     description: 'Filtrar por marca exacta',
     example: 'Coca-Cola',
@@ -55,7 +46,7 @@ export class ProductPaginationQueryDto extends BaseQueryWithStatusDto {
   brand?: string;
 
   @ApiPropertyOptional({
-    description: 'Filtrar por presentación',
+    description: 'Filtrar por presentacion',
     example: '500ml',
   })
   @IsOptional()
@@ -63,7 +54,7 @@ export class ProductPaginationQueryDto extends BaseQueryWithStatusDto {
   presentation?: string;
 
   @ApiPropertyOptional({
-    description: 'Precio mínimo (unitPrice >= valor)',
+    description: 'Precio minimo (price >= valor)',
     example: 100,
   })
   @IsOptional()
@@ -72,7 +63,7 @@ export class ProductPaginationQueryDto extends BaseQueryWithStatusDto {
   minPrice?: number;
 
   @ApiPropertyOptional({
-    description: 'Precio máximo (unitPrice <= valor)',
+    description: 'Precio maximo (price <= valor)',
     example: 500,
   })
   @IsOptional()

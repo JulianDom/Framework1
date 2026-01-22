@@ -5,21 +5,16 @@ import { ConflictException } from '@shared/exceptions';
 export interface CreateProductInput {
   name: string;
   description?: string;
-  sku: string;
-  barcode?: string;
-  presentation: string;
-  unitPrice: number;
-  category?: string;
   brand?: string;
-  imageUrl?: string;
+  presentation: string;
+  price: number;
 }
 
 export interface CreateProductOutput {
   id: string;
   name: string;
-  sku: string;
   presentation: string;
-  unitPrice: number;
+  price: number;
   active: boolean;
 }
 
@@ -27,19 +22,13 @@ export interface CreateProductOutput {
  * CreateProductUseCase
  *
  * Crea un nuevo producto.
- * Previene duplicados según nombre + presentación y SKU único.
+ * Previene duplicados segun nombre + presentacion.
  */
 export class CreateProductUseCase {
   constructor(private readonly productRepository: IProductRepository) {}
 
   async execute(input: CreateProductInput): Promise<CreateProductOutput> {
-    // Verificar SKU único
-    const existsBySku = await this.productRepository.existsBySku(input.sku);
-    if (existsBySku) {
-      throw new ConflictException(`A product with SKU "${input.sku}" already exists`);
-    }
-
-    // Verificar duplicado por nombre + presentación
+    // Verificar duplicado por nombre + presentacion
     const existsDuplicate = await this.productRepository.existsDuplicate(
       input.name,
       input.presentation,
@@ -54,13 +43,9 @@ export class CreateProductUseCase {
     const product = ProductEntity.create({
       name: input.name,
       description: input.description ?? null,
-      sku: input.sku,
-      barcode: input.barcode ?? null,
-      presentation: input.presentation,
-      unitPrice: input.unitPrice,
-      category: input.category ?? null,
       brand: input.brand ?? null,
-      imageUrl: input.imageUrl ?? null,
+      presentation: input.presentation,
+      price: input.price,
       active: true,
     });
 
@@ -70,9 +55,8 @@ export class CreateProductUseCase {
     return {
       id: created.id!,
       name: created.name,
-      sku: created.sku,
       presentation: created.presentation,
-      unitPrice: created.unitPrice,
+      price: created.price,
       active: created.active,
     };
   }

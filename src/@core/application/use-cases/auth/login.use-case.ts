@@ -1,6 +1,6 @@
 import {
-  IUserRepository,
   IAdministratorRepository,
+  IOperativeUserRepository,
 } from '@core/application/ports/repositories';
 import {
   IRefreshTokenService,
@@ -40,12 +40,12 @@ const DUMMY_PASSWORD_HASH = '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.VTtYL
  */
 export class LoginUseCase {
   constructor(
-    private readonly userRepository: IUserRepository,
     private readonly adminRepository: IAdministratorRepository,
+    private readonly operativeUserRepository: IOperativeUserRepository,
     private readonly passwordHasher: IPasswordHasherService,
     private readonly tokenGenerator: ITokenGenerator,
     private readonly refreshTokenService: IRefreshTokenService,
-  ) {}
+  ) { }
 
   async execute(input: LoginInput): Promise<LoginOutput> {
     const { email, password, actorType } = input;
@@ -60,23 +60,40 @@ export class LoginUseCase {
   }
 
   private async loginUser(email: string, password: string): Promise<LoginOutput> {
-    // 1. Buscar usuario por email
-    const user = await this.userRepository.findByEmail(email);
+    console.log('=== LOGIN USER DEBUG ===');
+    console.log('Email recibido:', email);
+    console.log('Password recibido:', password);
+
+    // 1. Buscar usuario operativo por email
+    const user = await this.operativeUserRepository.findByEmail(email);
+
+    console.log('Usuario operativo encontrado:', !!user);
+    if (user) {
+      console.log('Usuario ID:', user.id);
+      console.log('Usuario email:', user.emailAddress);
+      console.log('Usuario username:', user.username);
+      console.log('Usuario password hash (primeros 20 chars):', user.password?.substring(0, 20) + '...');
+    }
 
     // 2. SECURITY: Siempre comparar password para prevenir timing attacks
     // Si el usuario no existe, comparamos contra un hash dummy
     // Esto asegura que el tiempo de respuesta sea constante
     const passwordToCompare = user?.password || DUMMY_PASSWORD_HASH;
+    console.log('Password a comparar (primeros 20 chars):', passwordToCompare.substring(0, 20) + '...');
+    console.log('Es dummy hash?', passwordToCompare === DUMMY_PASSWORD_HASH);
+
     const isPasswordValid = await this.passwordHasher.compare(password, passwordToCompare);
+    console.log('Password válido?:', isPasswordValid);
+    console.log('========================');
 
     // 3. Verificar todas las condiciones de error (después de la comparación)
     if (!user || !isPasswordValid) {
       throw new InvalidCredentialsException();
     }
 
-    // 4. Verificar que no esté eliminado
-    if (user.isDeleted) {
-      throw new AccountDisabledException('Account is deactivated');
+    // 4. Verificar que esté activo y no eliminado
+    if (!user.isActive) {
+      throw new AccountDisabledException('Account is disabled');
     }
 
     // 5. Generar tokens

@@ -9,9 +9,8 @@ export interface ToggleProductStatusInput {
 export interface ToggleProductStatusOutput {
   id: string;
   name: string;
-  sku: string;
   presentation: string;
-  unitPrice: number;
+  price: number;
   active: boolean;
 }
 
@@ -40,9 +39,8 @@ export class ToggleProductStatusUseCase {
     return {
       id: updated.id!,
       name: updated.name,
-      sku: updated.sku,
       presentation: updated.presentation,
-      unitPrice: Number(updated.unitPrice),
+      price: updated.price,
       active: updated.active,
     };
   }

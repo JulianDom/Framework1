@@ -7,8 +7,8 @@ export class PriceRecordProductDto {
   @ApiProperty({ description: 'Product name' })
   name!: string;
 
-  @ApiProperty({ description: 'Product SKU' })
-  sku!: string;
+  @ApiPropertyOptional({ description: 'Product brand' })
+  brand!: string | null;
 
   @ApiProperty({ description: 'Product presentation' })
   presentation!: string;
@@ -21,11 +21,11 @@ export class PriceRecordStoreDto {
   @ApiProperty({ description: 'Store name' })
   name!: string;
 
-  @ApiProperty({ description: 'Store code' })
-  code!: string;
+  @ApiProperty({ description: 'Store locality' })
+  locality!: string;
 
-  @ApiProperty({ description: 'Store address' })
-  address!: string;
+  @ApiPropertyOptional({ description: 'Store zone' })
+  zone!: string | null;
 }
 
 export class PriceRecordOperativeUserDto {

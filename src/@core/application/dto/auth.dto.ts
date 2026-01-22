@@ -54,3 +54,34 @@ export interface RegisterOutput {
   };
   tokens: TokenPair;
 }
+
+// ==================== Refresh Token ====================
+
+export interface RefreshTokenInput {
+  refreshToken: string;
+  actorType?: ActorType;
+}
+
+export interface RefreshTokenOutput {
+  actor: {
+    id: string;
+    email: string;
+    username: string;
+    fullName: string;
+    type: ActorType;
+  };
+  tokens: TokenPair;
+}
+
+// ==================== Logout ====================
+
+export interface LogoutInput {
+  userId: string;
+  actorType: ActorType;
+  allSessions?: boolean;
+}
+
+export interface LogoutOutput {
+  message: string;
+  sessionsInvalidated: number;
+}

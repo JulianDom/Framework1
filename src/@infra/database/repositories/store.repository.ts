@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Store, Prisma } from '@prisma/client';
+import { Store } from '@prisma/client';
 import { PrismaService } from '@infra/database/prisma';
 import { IStoreRepository } from '@core/application/ports/repositories';
-import { StoreEntity, StoreMetadata } from '@core/domain/entities';
+import { StoreEntity } from '@core/domain/entities';
 import { PrismaRepository } from './base.repository';
 
 /**
@@ -26,18 +26,9 @@ export class StoreRepository
     return StoreEntity.reconstitute({
       id: model.id,
       name: model.name,
-      code: model.code,
-      address: model.address,
-      city: model.city,
-      state: model.state,
-      zipCode: model.zipCode,
-      country: model.country,
-      latitude: model.latitude?.toNumber() ?? null,
-      longitude: model.longitude?.toNumber() ?? null,
-      phone: model.phone,
-      email: model.email,
+      locality: model.locality,
+      zone: model.zone,
       active: model.active,
-      metadata: model.metadata as StoreMetadata | null,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       deletedAt: model.deletedAt,
@@ -48,26 +39,13 @@ export class StoreRepository
     const data = entity.toObject();
     return {
       name: data.name,
-      code: data.code,
-      address: data.address,
-      city: data.city,
-      state: data.state,
-      zipCode: data.zipCode,
-      country: data.country ?? 'Argentina',
-      latitude: data.latitude != null ? new Prisma.Decimal(data.latitude) : null,
-      longitude: data.longitude != null ? new Prisma.Decimal(data.longitude) : null,
-      phone: data.phone,
-      email: data.email,
+      locality: data.locality,
+      zone: data.zone,
       active: data.active ?? true,
-      metadata: data.metadata,
     };
   }
 
   // ==================== Domain-Specific Methods ====================
-
-  async findByCode(code: string): Promise<StoreEntity | null> {
-    return this.findOne({ code });
-  }
 
   // @ts-expect-error - Override with different signature to match IStoreRepository
   override async findAll(
@@ -102,8 +80,12 @@ export class StoreRepository
     return this.findMany({ active: true });
   }
 
-  async findByCity(city: string): Promise<StoreEntity[]> {
-    return this.findMany({ city });
+  async findByLocality(locality: string): Promise<StoreEntity[]> {
+    return this.findMany({ locality });
+  }
+
+  async findByZone(zone: string): Promise<StoreEntity[]> {
+    return this.findMany({ zone });
   }
 
   async createMany(entities: StoreEntity[]): Promise<StoreEntity[]> {
@@ -114,11 +96,11 @@ export class StoreRepository
       skipDuplicates: true,
     });
 
-    // Recuperar los locales creados por código
-    const codes = entities.map((e) => e.code);
+    // Recuperar los locales creados por nombre + localidad
+    const names = entities.map((e) => e.name);
     const created = await this.model.findMany({
       where: {
-        code: { in: codes },
+        name: { in: names },
         deletedAt: null,
       },
     });
@@ -142,14 +124,10 @@ export class StoreRepository
     return this.toEntity(updated);
   }
 
-  async existsByCode(code: string): Promise<boolean> {
-    return this.exists({ code });
-  }
-
-  async existsDuplicate(name: string, address: string, excludeId?: string): Promise<boolean> {
+  async existsDuplicate(name: string, locality: string, excludeId?: string): Promise<boolean> {
     const where: Record<string, unknown> = {
       name: { equals: name, mode: 'insensitive' },
-      address: { equals: address, mode: 'insensitive' },
+      locality: { equals: locality, mode: 'insensitive' },
       deletedAt: null,
     };
 
@@ -171,9 +149,8 @@ export class StoreRepository
     const where = {
       OR: [
         { name: { contains: query, mode: 'insensitive' as const } },
-        { address: { contains: query, mode: 'insensitive' as const } },
-        { code: { contains: query, mode: 'insensitive' as const } },
-        { city: { contains: query, mode: 'insensitive' as const } },
+        { locality: { contains: query, mode: 'insensitive' as const } },
+        { zone: { contains: query, mode: 'insensitive' as const } },
       ],
       deletedAt: null,
     };

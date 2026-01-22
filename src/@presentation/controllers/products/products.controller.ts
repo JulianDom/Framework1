@@ -75,7 +75,6 @@ export class ProductsController {
       page: query.page,
       limit: query.limit,
       search: query.search,
-      category: query.category,
       brand: query.brand,
       activeOnly: query.activeOnly,
     });
@@ -94,18 +93,14 @@ export class ProductsController {
   @ApiOperation({ summary: 'Create a new product' })
   @ApiBody({ type: CreateProductDto })
   @ApiResponse({ status: 201, description: 'Product created', type: ProductResponseDto })
-  @ApiResponse({ status: 409, description: 'SKU or name+presentation already exists' })
+  @ApiResponse({ status: 409, description: 'Name+presentation already exists' })
   async createProduct(@Body() dto: CreateProductDto): Promise<ProductResponseDto> {
     return this.createProductUseCase.execute({
       name: dto.name,
       description: dto.description,
-      sku: dto.sku,
-      barcode: dto.barcode,
-      presentation: dto.presentation,
-      unitPrice: dto.unitPrice,
-      category: dto.category,
       brand: dto.brand,
-      imageUrl: dto.imageUrl,
+      presentation: dto.presentation,
+      price: dto.price,
     });
   }
 
@@ -124,12 +119,9 @@ export class ProductsController {
       productId: id,
       name: dto.name,
       description: dto.description,
-      barcode: dto.barcode,
-      presentation: dto.presentation,
-      unitPrice: dto.unitPrice,
-      category: dto.category,
       brand: dto.brand,
-      imageUrl: dto.imageUrl,
+      presentation: dto.presentation,
+      price: dto.price,
     });
   }
 

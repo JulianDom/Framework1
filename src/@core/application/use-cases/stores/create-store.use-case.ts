@@ -4,24 +4,15 @@ import { ConflictException } from '@shared/exceptions';
 
 export interface CreateStoreInput {
   name: string;
-  code: string;
-  address: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  country?: string;
-  latitude?: number;
-  longitude?: number;
-  phone?: string;
-  email?: string;
-  metadata?: Record<string, unknown>;
+  locality: string;
+  zone?: string;
 }
 
 export interface CreateStoreOutput {
   id: string;
   name: string;
-  code: string;
-  address: string;
+  locality: string;
+  zone: string | null;
   active: boolean;
 }
 
@@ -29,42 +20,27 @@ export interface CreateStoreOutput {
  * CreateStoreUseCase
  *
  * Crea un nuevo local.
- * Previene duplicados según código único y nombre + dirección.
- * Todos los locales están activos por defecto.
+ * Previene duplicados segun nombre + localidad.
+ * Todos los locales estan activos por defecto.
  */
 export class CreateStoreUseCase {
   constructor(private readonly storeRepository: IStoreRepository) {}
 
   async execute(input: CreateStoreInput): Promise<CreateStoreOutput> {
-    // Verificar código único
-    const existsByCode = await this.storeRepository.existsByCode(input.code);
-    if (existsByCode) {
-      throw new ConflictException(`A store with code "${input.code}" already exists`);
-    }
-
-    // Verificar duplicado por nombre + dirección
-    const existsDuplicate = await this.storeRepository.existsDuplicate(input.name, input.address);
+    // Verificar duplicado por nombre + localidad
+    const existsDuplicate = await this.storeRepository.existsDuplicate(input.name, input.locality);
     if (existsDuplicate) {
       throw new ConflictException(
-        `A store with name "${input.name}" and address "${input.address}" already exists`,
+        `A store with name "${input.name}" and locality "${input.locality}" already exists`,
       );
     }
 
     // Crear entidad - activo por defecto
     const store = StoreEntity.create({
       name: input.name,
-      code: input.code,
-      address: input.address,
-      city: input.city ?? null,
-      state: input.state ?? null,
-      zipCode: input.zipCode ?? null,
-      country: input.country ?? 'Argentina',
-      latitude: input.latitude ?? null,
-      longitude: input.longitude ?? null,
-      phone: input.phone ?? null,
-      email: input.email ?? null,
+      locality: input.locality,
+      zone: input.zone ?? null,
       active: true,
-      metadata: input.metadata ?? null,
     });
 
     // Persistir
@@ -73,8 +49,8 @@ export class CreateStoreUseCase {
     return {
       id: created.id!,
       name: created.name,
-      code: created.code,
-      address: created.address,
+      locality: created.locality,
+      zone: created.zone,
       active: created.active,
     };
   }

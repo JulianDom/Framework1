@@ -4,18 +4,9 @@ import { EntityNotFoundException } from '@shared/exceptions';
 export interface GetStoreOutput {
   id: string;
   name: string;
-  code: string;
-  address: string;
-  city: string | null;
-  state: string | null;
-  zipCode: string | null;
-  country: string;
-  latitude: number | null;
-  longitude: number | null;
-  phone: string | null;
-  email: string | null;
+  locality: string;
+  zone: string | null;
   active: boolean;
-  metadata: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,18 +29,9 @@ export class GetStoreUseCase {
     return {
       id: store.id!,
       name: store.name,
-      code: store.code,
-      address: store.address,
-      city: store.city,
-      state: store.state,
-      zipCode: store.zipCode,
-      country: store.country,
-      latitude: store.latitude,
-      longitude: store.longitude,
-      phone: store.phone,
-      email: store.email,
+      locality: store.locality,
+      zone: store.zone,
       active: store.active,
-      metadata: store.metadata,
       createdAt: store.createdAt!,
       updatedAt: store.updatedAt!,
     };

@@ -42,11 +42,11 @@ export class PriceRecordsController {
     private readonly listPriceRecordsUseCase: ListPriceRecordsUseCase,
     private readonly getPriceRecordDetailUseCase: GetPriceRecordDetailUseCase,
     private readonly createPriceRecordUseCase: CreatePriceRecordUseCase,
-  ) {}
+  ) { }
 
   @Post()
-  @Roles(ActorType.OPERATIVE)
-  @ApiOperation({ summary: 'Create a new price record (operative users)' })
+  @Roles(ActorType.USER, ActorType.ADMIN)
+  @ApiOperation({ summary: 'Create a new price record (operative users and administrators)' })
   @ApiBody({ type: CreatePriceRecordDto })
   @ApiResponse({ status: 201, description: 'Price record created', type: CreatePriceRecordResponseDto })
   @ApiResponse({ status: 404, description: 'Product, Store or Operative User not found' })
@@ -54,10 +54,16 @@ export class PriceRecordsController {
     @Request() req: any,
     @Body() dto: CreatePriceRecordDto,
   ): Promise<CreatePriceRecordResponseDto> {
+    console.log('=== PRICE RECORD CONTROLLER DEBUG ===');
+    console.log('req.user:', req.user);
+    console.log('req.user.sub:', req.user?.sub);
+    console.log('DTO:', dto);
+    console.log('=====================================');
+
     return this.createPriceRecordUseCase.execute({
       productId: dto.productId,
       storeId: dto.storeId,
-      operativeUserId: req.user.sub,
+      operativeUserId: req.user.id,
       price: dto.price,
       recordedAt: dto.recordedAt,
       notes: dto.notes,

@@ -1,4 +1,4 @@
-import { ActorType, TokenPair } from '@shared/types';
+import { ActorType, TokenPair, JwtPayload } from '@shared/types';
 
 /**
  * Puerto para servicio de generación de tokens
@@ -10,6 +10,11 @@ export interface ITokenGenerator {
     username: string;
     type: ActorType;
   }): TokenPair;
+
+  /**
+   * Decodifica un token sin verificar (para inspección)
+   */
+  decodeToken(token: string): JwtPayload | null;
 }
 
 export const TOKEN_GENERATOR = Symbol('ITokenGenerator');

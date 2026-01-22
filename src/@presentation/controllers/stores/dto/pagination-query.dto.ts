@@ -7,39 +7,31 @@ import { BaseQueryWithStatusDto } from '@presentation/dto';
  *
  * DTO para filtrar y paginar locales/tiendas.
  * Extiende de BaseQueryWithStatusDto que ya incluye:
- * - page, limit (paginación)
+ * - page, limit (paginacion)
  * - sort (ordenamiento)
- * - search (búsqueda global)
+ * - search (busqueda global)
  * - activeOnly (filtro de estado)
  *
  * Ejemplos de uso:
  *   GET /stores?page=1&limit=20
  *   GET /stores?search=sucursal centro
- *   GET /stores?city=Buenos Aires&activeOnly=true
- *   GET /stores?sort=name&state=CABA
+ *   GET /stores?locality=Buenos Aires&activeOnly=true
+ *   GET /stores?sort=name&zone=Centro
  */
 export class StorePaginationQueryDto extends BaseQueryWithStatusDto {
   @ApiPropertyOptional({
-    description: 'Filtrar por ciudad',
+    description: 'Filtrar por localidad',
     example: 'Buenos Aires',
   })
   @IsOptional()
   @IsString()
-  city?: string;
+  locality?: string;
 
   @ApiPropertyOptional({
-    description: 'Filtrar por estado/provincia',
-    example: 'CABA',
+    description: 'Filtrar por zona',
+    example: 'Centro',
   })
   @IsOptional()
   @IsString()
-  state?: string;
-
-  @ApiPropertyOptional({
-    description: 'Filtrar por país',
-    example: 'Argentina',
-  })
-  @IsOptional()
-  @IsString()
-  country?: string;
+  zone?: string;
 }

@@ -4,7 +4,6 @@ export interface ListProductsInput {
   page?: number;
   limit?: number;
   search?: string;
-  category?: string;
   brand?: string;
   activeOnly?: boolean;
 }
@@ -12,10 +11,8 @@ export interface ListProductsInput {
 export interface ProductListItem {
   id: string;
   name: string;
-  sku: string;
   presentation: string;
-  unitPrice: number;
-  category: string | null;
+  price: number;
   brand: string | null;
   active: boolean;
 }
@@ -30,7 +27,7 @@ export interface ListProductsOutput {
 /**
  * ListProductsUseCase
  *
- * Lista productos con paginación y filtros opcionales.
+ * Lista productos con paginacion y filtros opcionales.
  */
 export class ListProductsUseCase {
   constructor(private readonly productRepository: IProductRepository) {}
@@ -42,14 +39,8 @@ export class ListProductsUseCase {
     let result: { data: any[]; total: number };
 
     if (input.search) {
-      // Búsqueda por texto
+      // Busqueda por texto
       result = await this.productRepository.search(input.search, page, limit);
-    } else if (input.category) {
-      // Filtrar por categoría
-      const products = await this.productRepository.findByCategory(input.category);
-      const start = (page - 1) * limit;
-      const paginatedProducts = products.slice(start, start + limit);
-      result = { data: paginatedProducts, total: products.length };
     } else if (input.brand) {
       // Filtrar por marca
       const products = await this.productRepository.findByBrand(input.brand);
@@ -65,10 +56,8 @@ export class ListProductsUseCase {
       data: result.data.map((product) => ({
         id: product.id!,
         name: product.name,
-        sku: product.sku,
         presentation: product.presentation,
-        unitPrice: product.unitPrice,
-        category: product.category,
+        price: product.price,
         brand: product.brand,
         active: product.active,
       })),

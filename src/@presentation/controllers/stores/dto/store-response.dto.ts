@@ -7,44 +7,17 @@ export class StoreResponseDto {
   @ApiProperty({ description: 'Store name' })
   name!: string;
 
-  @ApiProperty({ description: 'Unique code' })
-  code!: string;
+  @ApiProperty({ description: 'Locality' })
+  locality!: string;
 
-  @ApiProperty({ description: 'Address' })
-  address!: string;
+  @ApiPropertyOptional({ description: 'Zone' })
+  zone?: string | null;
 
   @ApiProperty({ description: 'Active status' })
   active!: boolean;
 }
 
 export class StoreDetailResponseDto extends StoreResponseDto {
-  @ApiPropertyOptional({ description: 'City' })
-  city?: string | null;
-
-  @ApiPropertyOptional({ description: 'State/Province' })
-  state?: string | null;
-
-  @ApiPropertyOptional({ description: 'Zip code' })
-  zipCode?: string | null;
-
-  @ApiProperty({ description: 'Country' })
-  country!: string;
-
-  @ApiPropertyOptional({ description: 'Latitude' })
-  latitude?: number | null;
-
-  @ApiPropertyOptional({ description: 'Longitude' })
-  longitude?: number | null;
-
-  @ApiPropertyOptional({ description: 'Phone' })
-  phone?: string | null;
-
-  @ApiPropertyOptional({ description: 'Email' })
-  email?: string | null;
-
-  @ApiPropertyOptional({ description: 'Metadata' })
-  metadata?: Record<string, unknown> | null;
-
   @ApiProperty({ description: 'Creation date' })
   createdAt!: Date;
 
@@ -59,17 +32,11 @@ export class StoreListItemDto {
   @ApiProperty({ description: 'Store name' })
   name!: string;
 
-  @ApiProperty({ description: 'Unique code' })
-  code!: string;
+  @ApiProperty({ description: 'Locality' })
+  locality!: string;
 
-  @ApiProperty({ description: 'Address' })
-  address!: string;
-
-  @ApiPropertyOptional({ description: 'City' })
-  city?: string | null;
-
-  @ApiPropertyOptional({ description: 'State/Province' })
-  state?: string | null;
+  @ApiPropertyOptional({ description: 'Zone' })
+  zone?: string | null;
 
   @ApiProperty({ description: 'Active status' })
   active!: boolean;

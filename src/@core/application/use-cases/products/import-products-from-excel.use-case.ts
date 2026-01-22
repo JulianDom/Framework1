@@ -4,12 +4,9 @@ import { ProductEntity } from '@core/domain/entities';
 export interface ExcelProductRow {
   name: string;
   description?: string;
-  sku: string;
-  barcode?: string;
-  presentation: string;
-  unitPrice: number;
-  category?: string;
   brand?: string;
+  presentation: string;
+  price: number;
 }
 
 export interface ImportProductsInput {
@@ -19,13 +16,13 @@ export interface ImportProductsInput {
 export interface ImportProductsResult {
   created: number;
   skipped: number;
-  errors: Array<{ row: number; sku: string; error: string }>;
+  errors: Array<{ row: number; name: string; error: string }>;
 }
 
 /**
  * ImportProductsFromExcelUseCase
  *
- * Importa productos desde un array (típicamente parseado de Excel).
+ * Importa productos desde un array (tipicamente parseado de Excel).
  * Salta duplicados y reporta errores por fila.
  */
 export class ImportProductsFromExcelUseCase {
@@ -46,31 +43,24 @@ export class ImportProductsFromExcelUseCase {
       if (!row) {
         result.errors.push({
           row: rowNumber,
-          sku: 'N/A',
+          name: 'N/A',
           error: 'Empty row',
         });
         continue;
       }
 
       try {
-        // Validar datos mínimos
-        if (!row.name || !row.sku || !row.presentation || row.unitPrice === undefined) {
+        // Validar datos minimos
+        if (!row.name || !row.presentation || row.price === undefined) {
           result.errors.push({
             row: rowNumber,
-            sku: row.sku || 'N/A',
-            error: 'Missing required fields (name, sku, presentation, unitPrice)',
+            name: row.name || 'N/A',
+            error: 'Missing required fields (name, presentation, price)',
           });
           continue;
         }
 
-        // Verificar SKU duplicado
-        const existsBySku = await this.productRepository.existsBySku(row.sku);
-        if (existsBySku) {
-          result.skipped++;
-          continue;
-        }
-
-        // Verificar duplicado por nombre + presentación
+        // Verificar duplicado por nombre + presentacion
         const existsDuplicate = await this.productRepository.existsDuplicate(
           row.name,
           row.presentation,
@@ -84,13 +74,9 @@ export class ImportProductsFromExcelUseCase {
         const product = ProductEntity.create({
           name: row.name,
           description: row.description ?? null,
-          sku: row.sku,
-          barcode: row.barcode ?? null,
-          presentation: row.presentation,
-          unitPrice: row.unitPrice,
-          category: row.category ?? null,
           brand: row.brand ?? null,
-          imageUrl: null,
+          presentation: row.presentation,
+          price: row.price,
           active: true,
         });
 
@@ -100,7 +86,7 @@ export class ImportProductsFromExcelUseCase {
       } catch (error) {
         result.errors.push({
           row: rowNumber,
-          sku: row.sku || 'N/A',
+          name: row.name || 'N/A',
           error: error instanceof Error ? error.message : 'Unknown error',
         });
       }

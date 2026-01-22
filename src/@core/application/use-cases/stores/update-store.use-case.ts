@@ -4,23 +4,15 @@ import { EntityNotFoundException, ConflictException } from '@shared/exceptions';
 export interface UpdateStoreInput {
   storeId: string;
   name?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  country?: string;
-  latitude?: number;
-  longitude?: number;
-  phone?: string;
-  email?: string;
-  metadata?: Record<string, unknown>;
+  locality?: string;
+  zone?: string;
 }
 
 export interface UpdateStoreOutput {
   id: string;
   name: string;
-  code: string;
-  address: string;
+  locality: string;
+  zone: string | null;
   active: boolean;
 }
 
@@ -28,7 +20,7 @@ export interface UpdateStoreOutput {
  * UpdateStoreUseCase
  *
  * Actualiza los datos de un local.
- * Verifica duplicados si se cambia nombre o dirección.
+ * Verifica duplicados si se cambia nombre o localidad.
  */
 export class UpdateStoreUseCase {
   constructor(private readonly storeRepository: IStoreRepository) {}
@@ -40,19 +32,19 @@ export class UpdateStoreUseCase {
       throw new EntityNotFoundException('Store', input.storeId);
     }
 
-    // Verificar duplicado si se cambia nombre o dirección
+    // Verificar duplicado si se cambia nombre o localidad
     const newName = input.name ?? store.name;
-    const newAddress = input.address ?? store.address;
+    const newLocality = input.locality ?? store.locality;
 
-    if (input.name !== undefined || input.address !== undefined) {
+    if (input.name !== undefined || input.locality !== undefined) {
       const existsDuplicate = await this.storeRepository.existsDuplicate(
         newName,
-        newAddress,
+        newLocality,
         store.id,
       );
       if (existsDuplicate) {
         throw new ConflictException(
-          `A store with name "${newName}" and address "${newAddress}" already exists`,
+          `A store with name "${newName}" and locality "${newLocality}" already exists`,
         );
       }
     }
@@ -61,24 +53,16 @@ export class UpdateStoreUseCase {
     const updateData: Record<string, unknown> = {};
 
     if (input.name !== undefined) updateData['name'] = input.name;
-    if (input.address !== undefined) updateData['address'] = input.address;
-    if (input.city !== undefined) updateData['city'] = input.city;
-    if (input.state !== undefined) updateData['state'] = input.state;
-    if (input.zipCode !== undefined) updateData['zipCode'] = input.zipCode;
-    if (input.country !== undefined) updateData['country'] = input.country;
-    if (input.latitude !== undefined) updateData['latitude'] = input.latitude;
-    if (input.longitude !== undefined) updateData['longitude'] = input.longitude;
-    if (input.phone !== undefined) updateData['phone'] = input.phone;
-    if (input.email !== undefined) updateData['email'] = input.email;
-    if (input.metadata !== undefined) updateData['metadata'] = input.metadata;
+    if (input.locality !== undefined) updateData['locality'] = input.locality;
+    if (input.zone !== undefined) updateData['zone'] = input.zone;
 
     const updated = await this.storeRepository.update(store.id!, updateData);
 
     return {
       id: updated.id!,
       name: updated.name,
-      code: updated.code,
-      address: updated.address,
+      locality: updated.locality,
+      zone: updated.zone,
       active: updated.active,
     };
   }

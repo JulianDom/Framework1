@@ -3,12 +3,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { AuthController } from './auth.controller';
-import { LoginUseCase, RegisterUseCase } from '@core/application/use-cases/auth';
+import { LoginUseCase, RegisterUseCase, RefreshTokenUseCase, LogoutUseCase } from '@core/application/use-cases/auth';
 import {
   USER_REPOSITORY,
   ADMINISTRATOR_REPOSITORY,
+  OPERATIVE_USER_REPOSITORY,
   IUserRepository,
   IAdministratorRepository,
+  IOperativeUserRepository,
 } from '@core/application/ports/repositories';
 import {
   REFRESH_TOKEN_SERVICE,
@@ -18,7 +20,7 @@ import {
   TOKEN_GENERATOR,
   ITokenGenerator,
 } from '@core/application/ports/services';
-import { UserRepository, AdministratorRepository } from '@infra/database/repositories';
+import { UserRepository, AdministratorRepository, OperativeUserRepository } from '@infra/database/repositories';
 import { PasswordHasherService } from '@infra/security/encryption';
 import { TokenService, RefreshTokenService } from '@infra/security/authentication';
 import { PrismaModule } from '@infra/database/prisma';
@@ -63,6 +65,10 @@ import { getJwtModuleConfig } from '@shared/config';
       provide: ADMINISTRATOR_REPOSITORY,
       useClass: AdministratorRepository,
     },
+    {
+      provide: OPERATIVE_USER_REPOSITORY,
+      useClass: OperativeUserRepository,
+    },
 
     // Service Implementations (Adapters)
     {
@@ -85,13 +91,13 @@ import { getJwtModuleConfig } from '@shared/config';
     {
       provide: LoginUseCase,
       useFactory: (
-        userRepo: IUserRepository,
         adminRepo: IAdministratorRepository,
+        operativeUserRepo: IOperativeUserRepository,
         passwordHasher: IPasswordHasherService,
         tokenGenerator: ITokenGenerator,
         refreshTokenService: IRefreshTokenService,
-      ) => new LoginUseCase(userRepo, adminRepo, passwordHasher, tokenGenerator, refreshTokenService),
-      inject: [USER_REPOSITORY, ADMINISTRATOR_REPOSITORY, PASSWORD_HASHER_SERVICE, TOKEN_GENERATOR, REFRESH_TOKEN_SERVICE],
+      ) => new LoginUseCase(adminRepo, operativeUserRepo, passwordHasher, tokenGenerator, refreshTokenService),
+      inject: [ADMINISTRATOR_REPOSITORY, OPERATIVE_USER_REPOSITORY, PASSWORD_HASHER_SERVICE, TOKEN_GENERATOR, REFRESH_TOKEN_SERVICE],
     },
     {
       provide: RegisterUseCase,
@@ -104,7 +110,25 @@ import { getJwtModuleConfig } from '@shared/config';
       ) => new RegisterUseCase(userRepo, adminRepo, passwordHasher, tokenGenerator, refreshTokenService),
       inject: [USER_REPOSITORY, ADMINISTRATOR_REPOSITORY, PASSWORD_HASHER_SERVICE, TOKEN_GENERATOR, REFRESH_TOKEN_SERVICE],
     },
+    {
+      provide: RefreshTokenUseCase,
+      useFactory: (
+        adminRepo: IAdministratorRepository,
+        operativeUserRepo: IOperativeUserRepository,
+        refreshTokenService: IRefreshTokenService,
+        tokenGenerator: ITokenGenerator,
+      ) => new RefreshTokenUseCase(adminRepo, operativeUserRepo, refreshTokenService, tokenGenerator),
+      inject: [ADMINISTRATOR_REPOSITORY, OPERATIVE_USER_REPOSITORY, REFRESH_TOKEN_SERVICE, TOKEN_GENERATOR],
+    },
+    {
+      provide: LogoutUseCase,
+      useFactory: (
+        adminRepo: IAdministratorRepository,
+        operativeUserRepo: IOperativeUserRepository,
+      ) => new LogoutUseCase(adminRepo, operativeUserRepo),
+      inject: [ADMINISTRATOR_REPOSITORY, OPERATIVE_USER_REPOSITORY],
+    },
   ],
-  exports: [LoginUseCase, RegisterUseCase],
+  exports: [LoginUseCase, RegisterUseCase, RefreshTokenUseCase, LogoutUseCase],
 })
-export class AuthPresentationModule {}
+export class AuthPresentationModule { }

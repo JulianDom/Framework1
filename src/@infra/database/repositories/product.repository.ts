@@ -26,14 +26,10 @@ export class ProductRepository
       id: model.id,
       name: model.name,
       description: model.description,
-      sku: model.sku,
-      barcode: model.barcode,
-      presentation: model.presentation,
-      unitPrice: model.unitPrice.toNumber(),
-      category: model.category,
       brand: model.brand,
+      presentation: model.presentation,
+      price: model.price.toNumber(),
       active: model.active,
-      imageUrl: model.imageUrl,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       deletedAt: model.deletedAt,
@@ -45,26 +41,14 @@ export class ProductRepository
     return {
       name: data.name,
       description: data.description,
-      sku: data.sku,
-      barcode: data.barcode,
-      presentation: data.presentation,
-      unitPrice: new Prisma.Decimal(data.unitPrice),
-      category: data.category,
       brand: data.brand,
+      presentation: data.presentation,
+      price: new Prisma.Decimal(data.price),
       active: data.active ?? true,
-      imageUrl: data.imageUrl,
     };
   }
 
   // ==================== Domain-Specific Methods ====================
-
-  async findBySku(sku: string): Promise<ProductEntity | null> {
-    return this.findOne({ sku });
-  }
-
-  async findByBarcode(barcode: string): Promise<ProductEntity | null> {
-    return this.findOne({ barcode });
-  }
 
   // @ts-expect-error - Override with different signature to match IProductRepository
   override async findAll(
@@ -99,10 +83,6 @@ export class ProductRepository
     return this.findMany({ active: true });
   }
 
-  async findByCategory(category: string): Promise<ProductEntity[]> {
-    return this.findMany({ category });
-  }
-
   async findByBrand(brand: string): Promise<ProductEntity[]> {
     return this.findMany({ brand });
   }
@@ -115,11 +95,11 @@ export class ProductRepository
       skipDuplicates: true,
     });
 
-    // Recuperar los productos creados por SKU
-    const skus = entities.map((e) => e.sku);
+    // Recuperar los productos creados por nombre + presentacion
+    const names = entities.map((e) => e.name);
     const created = await this.model.findMany({
       where: {
-        sku: { in: skus },
+        name: { in: names },
         deletedAt: null,
       },
     });
@@ -141,10 +121,6 @@ export class ProductRepository
       data: { active: false },
     });
     return this.toEntity(updated);
-  }
-
-  async existsBySku(sku: string): Promise<boolean> {
-    return this.exists({ sku });
   }
 
   async existsDuplicate(name: string, presentation: string, excludeId?: string): Promise<boolean> {
@@ -173,8 +149,8 @@ export class ProductRepository
       OR: [
         { name: { contains: query, mode: 'insensitive' as const } },
         { description: { contains: query, mode: 'insensitive' as const } },
-        { sku: { contains: query, mode: 'insensitive' as const } },
-        { barcode: { contains: query, mode: 'insensitive' as const } },
+        { brand: { contains: query, mode: 'insensitive' as const } },
+        { presentation: { contains: query, mode: 'insensitive' as const } },
       ],
       deletedAt: null,
     };

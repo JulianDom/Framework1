@@ -5,13 +5,13 @@ import { BusinessValidationException } from '@shared/exceptions';
  *
  * Representa un producto del sistema.
  *
- * Características:
- * - ABM de productos
- * - Importación desde Excel
- * - Activación/desactivación
- * - Prevención de duplicados (nombre + presentación)
- * - Productos diferenciados por presentación (ej: 1kg y 500g son productos distintos)
- * - Precio siempre unitario
+ * Campos:
+ * - name: Nombre del producto
+ * - description: Descripción (opcional)
+ * - brand: Marca (opcional)
+ * - presentation: Presentación (ej: "1kg", "500g", "1L")
+ * - price: Precio
+ * - active: Estado activo/inactivo
  */
 
 /**
@@ -20,21 +20,17 @@ import { BusinessValidationException } from '@shared/exceptions';
 export interface ProductPropsBase {
   name: string;
   description?: string | null;
-  sku: string;
-  barcode?: string | null;
-  presentation: string;
-  unitPrice: number;
-  category?: string | null;
   brand?: string | null;
+  presentation: string;
+  price: number;
   active?: boolean;
-  imageUrl?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date | null;
 }
 
 /**
- * Propiedades del producto con id opcional (para compatibilidad)
+ * Propiedades del producto con id opcional
  */
 export interface ProductProps extends ProductPropsBase {
   id?: string;
@@ -60,15 +56,13 @@ export class ProductEntity {
 
   /**
    * Crea una nueva entidad de producto (no persistida).
-   * El id se asignará al guardar en el repositorio.
    */
   static create(
     props: Omit<ProductPropsBase, 'createdAt' | 'updatedAt' | 'deletedAt'>,
   ): ProductEntity {
     ProductEntity.validateName(props.name);
-    ProductEntity.validateSku(props.sku);
     ProductEntity.validatePresentation(props.presentation);
-    ProductEntity.validateUnitPrice(props.unitPrice);
+    ProductEntity.validatePrice(props.price);
 
     return new ProductEntity(
       {
@@ -84,7 +78,6 @@ export class ProductEntity {
 
   /**
    * Reconstituye una entidad desde la base de datos.
-   * Debe incluir el id obligatoriamente.
    */
   static reconstitute(props: PersistedProductProps): ProductEntity {
     return new ProductEntity(props, true);
@@ -92,24 +85,14 @@ export class ProductEntity {
 
   // ==================== State Checks ====================
 
-  /**
-   * Indica si la entidad fue persistida (tiene id de BD)
-   */
   get isPersisted(): boolean {
     return this._isPersisted;
   }
 
-  /**
-   * Retorna el id de la entidad.
-   */
   get id(): string | undefined {
     return this.props.id;
   }
 
-  /**
-   * Retorna el id garantizado.
-   * Lanza error si la entidad no está persistida.
-   */
   get persistedId(): string {
     if (!this.props.id) {
       throw new BusinessValidationException('Entity has not been persisted yet');
@@ -127,36 +110,20 @@ export class ProductEntity {
     return this.props.description ?? null;
   }
 
-  get sku(): string {
-    return this.props.sku;
-  }
-
-  get barcode(): string | null {
-    return this.props.barcode ?? null;
+  get brand(): string | null {
+    return this.props.brand ?? null;
   }
 
   get presentation(): string {
     return this.props.presentation;
   }
 
-  get unitPrice(): number {
-    return this.props.unitPrice;
-  }
-
-  get category(): string | null {
-    return this.props.category ?? null;
-  }
-
-  get brand(): string | null {
-    return this.props.brand ?? null;
+  get price(): number {
+    return this.props.price;
   }
 
   get active(): boolean {
     return this.props.active ?? true;
-  }
-
-  get imageUrl(): string | null {
-    return this.props.imageUrl ?? null;
   }
 
   get createdAt(): Date | undefined {
@@ -187,11 +154,8 @@ export class ProductEntity {
   updateDetails(data: {
     name?: string;
     description?: string | null;
-    barcode?: string | null;
-    presentation?: string;
-    category?: string | null;
     brand?: string | null;
-    imageUrl?: string | null;
+    presentation?: string;
   }): void {
     if (data.name !== undefined) {
       ProductEntity.validateName(data.name);
@@ -200,40 +164,22 @@ export class ProductEntity {
     if (data.description !== undefined) {
       this.props.description = data.description;
     }
-    if (data.barcode !== undefined) {
-      this.props.barcode = data.barcode;
+    if (data.brand !== undefined) {
+      this.props.brand = data.brand;
     }
     if (data.presentation !== undefined) {
       ProductEntity.validatePresentation(data.presentation);
       this.props.presentation = data.presentation;
     }
-    if (data.category !== undefined) {
-      this.props.category = data.category;
-    }
-    if (data.brand !== undefined) {
-      this.props.brand = data.brand;
-    }
-    if (data.imageUrl !== undefined) {
-      this.props.imageUrl = data.imageUrl;
-    }
     this.props.updatedAt = new Date();
   }
 
-  updatePrice(newUnitPrice: number): void {
-    ProductEntity.validateUnitPrice(newUnitPrice);
-    this.props.unitPrice = newUnitPrice;
+  updatePrice(newPrice: number): void {
+    ProductEntity.validatePrice(newPrice);
+    this.props.price = newPrice;
     this.props.updatedAt = new Date();
   }
 
-  updateSku(newSku: string): void {
-    ProductEntity.validateSku(newSku);
-    this.props.sku = newSku;
-    this.props.updatedAt = new Date();
-  }
-
-  /**
-   * Activa el producto
-   */
   activate(): void {
     if (this.props.active) {
       throw new BusinessValidationException('Product is already active');
@@ -242,9 +188,6 @@ export class ProductEntity {
     this.props.updatedAt = new Date();
   }
 
-  /**
-   * Desactiva el producto
-   */
   deactivate(): void {
     if (!this.props.active) {
       throw new BusinessValidationException('Product is already inactive');
@@ -281,15 +224,6 @@ export class ProductEntity {
     }
   }
 
-  private static validateSku(sku: string): void {
-    if (!sku || sku.trim().length === 0) {
-      throw new BusinessValidationException('SKU is required');
-    }
-    if (sku.length > 100) {
-      throw new BusinessValidationException('SKU must not exceed 100 characters');
-    }
-  }
-
   private static validatePresentation(presentation: string): void {
     if (!presentation || presentation.trim().length === 0) {
       throw new BusinessValidationException('Presentation is required');
@@ -299,9 +233,9 @@ export class ProductEntity {
     }
   }
 
-  private static validateUnitPrice(price: number): void {
+  private static validatePrice(price: number): void {
     if (price < 0) {
-      throw new BusinessValidationException('Unit price cannot be negative');
+      throw new BusinessValidationException('Price cannot be negative');
     }
   }
 

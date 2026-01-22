@@ -4,6 +4,7 @@ import { PrismaService } from '@infra/database/prisma';
 import { IAdministratorRepository } from '@core/application/ports/repositories';
 import { AdministratorEntity, AdminModules } from '@core/domain/entities';
 import { PrismaRepository } from './base.repository';
+import { RefreshTokenService } from '@infra/security/authentication';
 
 /**
  * AdministratorRepository - Implementación Prisma
@@ -14,9 +15,11 @@ import { PrismaRepository } from './base.repository';
 @Injectable()
 export class AdministratorRepository
   extends PrismaRepository<Administrator, AdministratorEntity>
-  implements IAdministratorRepository
-{
-  constructor(prisma: PrismaService) {
+  implements IAdministratorRepository {
+  constructor(
+    prisma: PrismaService,
+    private readonly refreshTokenService: RefreshTokenService,
+  ) {
     super(prisma, 'administrator');
   }
 
@@ -60,6 +63,8 @@ export class AdministratorRepository
   async findByUsername(username: string): Promise<AdministratorEntity | null> {
     return this.findOne({ username });
   }
+
+
 
   // @ts-expect-error - Override with different signature to match IAdministratorRepository
   override async findAll(
@@ -112,6 +117,32 @@ export class AdministratorRepository
     });
   }
 
+  async findByRefreshToken(refreshToken: string): Promise<AdministratorEntity | null> {
+    console.log('=== findByRefreshToken DEBUG ===');
+    console.log('Token recibido:', refreshToken.substring(0, 20) + '...');
+
+    // Buscar todos los administradores con refresh token no nulo
+    const admins = await this.model.findMany({
+      where: {
+        refreshToken: { not: null },
+        deletedAt: null,
+      },
+    });
+
+    console.log('Administradores con refresh token:', admins.length);
+
+    // Verificar cada refresh token hasheado
+    for (const admin of admins) {
+      if (admin.refreshToken && await this.refreshTokenService.verifyToken(refreshToken, admin.refreshToken)) {
+        console.log('Refresh token válido encontrado para admin:', admin.id);
+        return this.toEntity(admin);
+      }
+    }
+
+    console.log('Refresh token no válido');
+    return null;
+  }
+
   async updateRecoverPasswordID(id: string, recoverId: string | null): Promise<void> {
     await this.model.update({
       where: { id },
@@ -135,5 +166,42 @@ export class AdministratorRepository
     });
 
     return this.toEntity(created);
+  }
+
+  async disable(id: string): Promise<AdministratorEntity> {
+    const updated = await this.model.update({
+      where: { id },
+      data: {
+        enabled: false,
+        refreshToken: null, // Invalida el token de refresco
+        updatedAt: new Date(),
+      },
+    });
+    return this.toEntity(updated);
+  }
+
+  async existsByEmail(email: string): Promise<boolean> {
+    const count = await this.model.count({
+      where: {
+        emailAddress: email,
+        deletedAt: null, // No contar eliminados
+      },
+    });
+    return count > 0;
+  }
+
+  async enable(id: string): Promise<AdministratorEntity> {
+    const updated = await this.model.update({
+      where: { id },
+      data: {
+        enabled: true,
+        updatedAt: new Date(),
+      },
+    });
+    return this.toEntity(updated);
+  }
+
+  async existsByUsername(username: string): Promise<boolean> {
+    return this.exists({ username });
   }
 }

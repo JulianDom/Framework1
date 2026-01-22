@@ -14,8 +14,7 @@ import { PrismaRepository } from './base.repository';
 @Injectable()
 export class OperativeUserRepository
   extends PrismaRepository<OperativeUser, OperativeUserEntity>
-  implements IOperativeUserRepository
-{
+  implements IOperativeUserRepository {
   constructor(prisma: PrismaService) {
     super(prisma, 'operativeUser');
   }
@@ -60,6 +59,29 @@ export class OperativeUserRepository
   async findByUsername(username: string): Promise<OperativeUserEntity | null> {
     return this.findOne({ username });
   }
+
+ async findByToken(token: string): Promise<OperativeUserEntity | null> {
+  const user = await this.prisma.operativeUser.findFirst({
+    where: { refreshToken: token },
+  });
+  return user ? this.toEntity(user) : null;
+}
+
+async invalidateSession(token: string): Promise<void> {
+  await this.prisma.operativeUser.updateMany({
+    where: { refreshToken: token },
+    data: { refreshToken: null },
+  });
+}
+
+async invalidateAllSessions(userId: string): Promise<void> {
+  await this.prisma.operativeUser.updateMany({
+    where: { 
+      id: userId,
+    },
+    data: { refreshToken: null },
+  });
+}
 
   // @ts-expect-error - Override with different signature to match IOperativeUserRepository
   override async findAll(
@@ -129,6 +151,17 @@ export class OperativeUserRepository
       },
     });
     return this.toEntity(updated);
+  }
+
+  async findByRefreshToken(refreshToken: string): Promise<OperativeUserEntity | null> {
+    const user = await this.model.findFirst({
+      where: {
+        refreshToken,
+        deletedAt: null,
+      },
+    });
+
+    return user ? this.toEntity(user) : null;
   }
 
   async existsByEmail(email: string): Promise<boolean> {

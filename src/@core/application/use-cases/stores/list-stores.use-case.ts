@@ -4,17 +4,16 @@ export interface ListStoresInput {
   page?: number;
   limit?: number;
   search?: string;
-  city?: string;
+  locality?: string;
+  zone?: string;
   activeOnly?: boolean;
 }
 
 export interface StoreListItem {
   id: string;
   name: string;
-  code: string;
-  address: string;
-  city: string | null;
-  state: string | null;
+  locality: string;
+  zone: string | null;
   active: boolean;
 }
 
@@ -28,7 +27,7 @@ export interface ListStoresOutput {
 /**
  * ListStoresUseCase
  *
- * Lista todos los locales con paginación y filtros opcionales.
+ * Lista todos los locales con paginacion y filtros opcionales.
  */
 export class ListStoresUseCase {
   constructor(private readonly storeRepository: IStoreRepository) {}
@@ -40,11 +39,17 @@ export class ListStoresUseCase {
     let result: { data: any[]; total: number };
 
     if (input.search) {
-      // Búsqueda por texto
+      // Busqueda por texto
       result = await this.storeRepository.search(input.search, page, limit);
-    } else if (input.city) {
-      // Filtrar por ciudad
-      const stores = await this.storeRepository.findByCity(input.city);
+    } else if (input.locality) {
+      // Filtrar por localidad
+      const stores = await this.storeRepository.findByLocality(input.locality);
+      const start = (page - 1) * limit;
+      const paginatedStores = stores.slice(start, start + limit);
+      result = { data: paginatedStores, total: stores.length };
+    } else if (input.zone) {
+      // Filtrar por zona
+      const stores = await this.storeRepository.findByZone(input.zone);
       const start = (page - 1) * limit;
       const paginatedStores = stores.slice(start, start + limit);
       result = { data: paginatedStores, total: stores.length };
@@ -57,10 +62,8 @@ export class ListStoresUseCase {
       data: result.data.map((store) => ({
         id: store.id!,
         name: store.name,
-        code: store.code,
-        address: store.address,
-        city: store.city,
-        state: store.state,
+        locality: store.locality,
+        zone: store.zone,
         active: store.active,
       })),
       total: result.total,

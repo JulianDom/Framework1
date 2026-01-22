@@ -5,20 +5,16 @@ export interface UpdateProductInput {
   productId: string;
   name?: string;
   description?: string;
-  barcode?: string;
-  presentation?: string;
-  unitPrice?: number;
-  category?: string;
   brand?: string;
-  imageUrl?: string;
+  presentation?: string;
+  price?: number;
 }
 
 export interface UpdateProductOutput {
   id: string;
   name: string;
-  sku: string;
   presentation: string;
-  unitPrice: number;
+  price: number;
   active: boolean;
 }
 
@@ -26,7 +22,7 @@ export interface UpdateProductOutput {
  * UpdateProductUseCase
  *
  * Actualiza los datos de un producto.
- * Verifica duplicados si se cambia nombre o presentación.
+ * Verifica duplicados si se cambia nombre o presentacion.
  */
 export class UpdateProductUseCase {
   constructor(private readonly productRepository: IProductRepository) {}
@@ -38,7 +34,7 @@ export class UpdateProductUseCase {
       throw new EntityNotFoundException('Product', input.productId);
     }
 
-    // Verificar duplicado si se cambia nombre o presentación
+    // Verificar duplicado si se cambia nombre o presentacion
     const newName = input.name ?? product.name;
     const newPresentation = input.presentation ?? product.presentation;
 
@@ -60,21 +56,17 @@ export class UpdateProductUseCase {
 
     if (input.name !== undefined) updateData['name'] = input.name;
     if (input.description !== undefined) updateData['description'] = input.description;
-    if (input.barcode !== undefined) updateData['barcode'] = input.barcode;
-    if (input.presentation !== undefined) updateData['presentation'] = input.presentation;
-    if (input.unitPrice !== undefined) updateData['unitPrice'] = input.unitPrice;
-    if (input.category !== undefined) updateData['category'] = input.category;
     if (input.brand !== undefined) updateData['brand'] = input.brand;
-    if (input.imageUrl !== undefined) updateData['imageUrl'] = input.imageUrl;
+    if (input.presentation !== undefined) updateData['presentation'] = input.presentation;
+    if (input.price !== undefined) updateData['price'] = input.price;
 
     const updated = await this.productRepository.update(product.id!, updateData);
 
     return {
       id: updated.id!,
       name: updated.name,
-      sku: updated.sku,
       presentation: updated.presentation,
-      unitPrice: updated.unitPrice,
+      price: updated.price,
       active: updated.active,
     };
   }

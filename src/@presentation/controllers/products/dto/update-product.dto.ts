@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNumber, IsPositive, MinLength, MaxLength, IsOptional } from 'class-validator';
+import { IsString, IsNumber, MinLength, MaxLength, IsOptional, Min } from 'class-validator';
 
 export class UpdateProductDto {
   @ApiPropertyOptional({ description: 'Product name', example: 'Aceite de Girasol Premium' })
@@ -14,11 +14,11 @@ export class UpdateProductDto {
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ description: 'Barcode (EAN/UPC)' })
+  @ApiPropertyOptional({ description: 'Brand' })
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  barcode?: string;
+  brand?: string;
 
   @ApiPropertyOptional({ description: 'Product presentation', example: '1.5L' })
   @IsOptional()
@@ -26,26 +26,9 @@ export class UpdateProductDto {
   @MaxLength(100)
   presentation?: string;
 
-  @ApiPropertyOptional({ description: 'Unit price', example: 1650.00 })
+  @ApiPropertyOptional({ description: 'Price', example: 1650.00 })
   @IsOptional()
   @IsNumber()
-  @IsPositive()
-  unitPrice?: number;
-
-  @ApiPropertyOptional({ description: 'Category' })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  category?: string;
-
-  @ApiPropertyOptional({ description: 'Brand' })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  brand?: string;
-
-  @ApiPropertyOptional({ description: 'Product image URL' })
-  @IsOptional()
-  @IsString()
-  imageUrl?: string;
+  @Min(0)
+  price?: number;
 }

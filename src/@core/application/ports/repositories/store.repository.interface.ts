@@ -5,28 +5,27 @@ import { StoreEntity } from '@core/domain/entities';
  *
  * Define el contrato que debe cumplir cualquier implementación
  * de persistencia de locales.
+ *
+ * Campos del modelo Store:
+ * - name, locality, zone, active
  */
 export interface IStoreRepository {
   findById(id: string): Promise<StoreEntity | null>;
-  findByCode(code: string): Promise<StoreEntity | null>;
   findAll(page?: number, limit?: number, activeOnly?: boolean): Promise<{ data: StoreEntity[]; total: number }>;
   findActive(): Promise<StoreEntity[]>;
-  findByCity(city: string): Promise<StoreEntity[]>;
+  findByLocality(locality: string): Promise<StoreEntity[]>;
+  findByZone(zone: string): Promise<StoreEntity[]>;
   create(entity: StoreEntity): Promise<StoreEntity>;
   createMany(entities: StoreEntity[]): Promise<StoreEntity[]>;
   update(id: string, entity: Partial<StoreEntity>): Promise<StoreEntity>;
   activate(id: string): Promise<StoreEntity>;
   deactivate(id: string): Promise<StoreEntity>;
   /**
-   * Verifica si existe un local con el código dado
+   * Verifica si existe un local duplicado (mismo nombre + localidad)
    */
-  existsByCode(code: string): Promise<boolean>;
+  existsDuplicate(name: string, locality: string, excludeId?: string): Promise<boolean>;
   /**
-   * Verifica si existe un local duplicado (mismo nombre + dirección)
-   */
-  existsDuplicate(name: string, address: string, excludeId?: string): Promise<boolean>;
-  /**
-   * Búsqueda de locales por nombre o dirección
+   * Busqueda de locales por nombre, localidad o zona
    */
   search(query: string, page?: number, limit?: number): Promise<{ data: StoreEntity[]; total: number }>;
 }

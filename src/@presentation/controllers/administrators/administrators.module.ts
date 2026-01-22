@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 import { AdministratorsController } from './administrators.controller';
 import {
@@ -22,9 +22,12 @@ import {
 import {
   PASSWORD_HASHER_SERVICE,
   IPasswordHasherService,
+  REFRESH_TOKEN_SERVICE,
 } from '@core/application/ports/services';
 import { AdministratorRepository } from '@infra/database/repositories';
 import { PasswordHasherService } from '@infra/security/encryption';
+import { RefreshTokenService } from '@infra/security/authentication';
+import { PrismaService } from '@infra/database/prisma';
 import { PrismaModule } from '@infra/database/prisma';
 import { AuthModule } from '@infra/security/auth.module';
 import { RolesGuard } from '@presentation/guards';
@@ -40,9 +43,8 @@ import { getJwtModuleConfig } from '@shared/config';
     PrismaModule,
     AuthModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
       useFactory: (configService: ConfigService) => getJwtModuleConfig(configService),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AdministratorsController],
@@ -52,13 +54,19 @@ import { getJwtModuleConfig } from '@shared/config';
     // Repository
     {
       provide: ADMINISTRATOR_REPOSITORY,
-      useClass: AdministratorRepository,
+      useFactory: (prisma: PrismaService, refreshTokenService: RefreshTokenService) =>
+        new AdministratorRepository(prisma, refreshTokenService),
+      inject: [PrismaService, RefreshTokenService],
     },
 
     // Services
     {
       provide: PASSWORD_HASHER_SERVICE,
       useClass: PasswordHasherService,
+    },
+    {
+      provide: REFRESH_TOKEN_SERVICE,
+      useClass: RefreshTokenService,
     },
 
     // Use Cases
@@ -119,4 +127,4 @@ import { getJwtModuleConfig } from '@shared/config';
     },
   ],
 })
-export class AdministratorsPresentationModule {}
+export class AdministratorsPresentationModule { }

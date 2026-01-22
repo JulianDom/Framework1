@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumber, IsPositive, IsArray, ValidateNested, IsOptional, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsArray, ValidateNested, IsOptional, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ExcelProductRowDto {
@@ -13,36 +13,20 @@ export class ExcelProductRowDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'Unique SKU', example: 'ACE-GIR-001' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  sku!: string;
-
-  @ApiPropertyOptional({ description: 'Barcode' })
+  @ApiPropertyOptional({ description: 'Brand' })
   @IsOptional()
   @IsString()
-  barcode?: string;
+  brand?: string;
 
   @ApiProperty({ description: 'Presentation', example: '1L' })
   @IsString()
   @IsNotEmpty()
   presentation!: string;
 
-  @ApiProperty({ description: 'Unit price', example: 1500.50 })
+  @ApiProperty({ description: 'Price', example: 1500.50 })
   @IsNumber()
-  @IsPositive()
-  unitPrice!: number;
-
-  @ApiPropertyOptional({ description: 'Category' })
-  @IsOptional()
-  @IsString()
-  category?: string;
-
-  @ApiPropertyOptional({ description: 'Brand' })
-  @IsOptional()
-  @IsString()
-  brand?: string;
+  @Min(0)
+  price!: number;
 }
 
 export class ImportProductsDto {
@@ -57,8 +41,8 @@ export class ImportProductsErrorDto {
   @ApiProperty({ description: 'Row number in Excel' })
   row!: number;
 
-  @ApiProperty({ description: 'SKU of the problematic product' })
-  sku!: string;
+  @ApiProperty({ description: 'Name of the problematic product' })
+  name!: string;
 
   @ApiProperty({ description: 'Error message' })
   error!: string;

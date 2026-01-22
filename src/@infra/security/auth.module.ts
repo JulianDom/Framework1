@@ -7,6 +7,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { JwtStrategy } from './authentication/jwt.strategy';
 import { JwtAuthGuard } from './authentication/jwt-auth.guard';
 import { TokenService } from './authentication/token.service';
+import { RefreshTokenService } from './authentication/refresh-token.service';
 import { BiometricService } from './biometrics/biometric.service';
 import { throttlerConfig } from './throttling/throttler.config';
 import { PrismaModule } from '@infra/database/prisma';
@@ -39,6 +40,7 @@ import { UserRepository } from '@infra/database/repositories';
     JwtStrategy,
     JwtAuthGuard,
     TokenService,
+    RefreshTokenService,
     BiometricService,
     {
       provide: USER_REPOSITORY,
@@ -49,6 +51,7 @@ import { UserRepository } from '@infra/database/repositories';
     JwtStrategy,
     JwtAuthGuard,
     TokenService,
+    RefreshTokenService,
     BiometricService,
     JwtModule,
     PassportModule,
@@ -56,4 +59,4 @@ import { UserRepository } from '@infra/database/repositories';
     USER_REPOSITORY,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

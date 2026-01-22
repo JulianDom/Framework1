@@ -7,14 +7,11 @@ export class ProductResponseDto {
   @ApiProperty({ description: 'Product name' })
   name!: string;
 
-  @ApiProperty({ description: 'Unique SKU' })
-  sku!: string;
-
   @ApiProperty({ description: 'Presentation (e.g., 1L, 500g)' })
   presentation!: string;
 
-  @ApiProperty({ description: 'Unit price' })
-  unitPrice!: number;
+  @ApiProperty({ description: 'Price' })
+  price!: number;
 
   @ApiProperty({ description: 'Active status' })
   active!: boolean;
@@ -24,17 +21,8 @@ export class ProductDetailResponseDto extends ProductResponseDto {
   @ApiPropertyOptional({ description: 'Description' })
   description?: string | null;
 
-  @ApiPropertyOptional({ description: 'Barcode' })
-  barcode?: string | null;
-
-  @ApiPropertyOptional({ description: 'Category' })
-  category?: string | null;
-
   @ApiPropertyOptional({ description: 'Brand' })
   brand?: string | null;
-
-  @ApiPropertyOptional({ description: 'Image URL' })
-  imageUrl?: string | null;
 
   @ApiProperty({ description: 'Creation date' })
   createdAt!: Date;
@@ -50,17 +38,11 @@ export class ProductListItemDto {
   @ApiProperty({ description: 'Product name' })
   name!: string;
 
-  @ApiProperty({ description: 'Unique SKU' })
-  sku!: string;
-
   @ApiProperty({ description: 'Presentation' })
   presentation!: string;
 
-  @ApiProperty({ description: 'Unit price' })
-  unitPrice!: number;
-
-  @ApiPropertyOptional({ description: 'Category' })
-  category?: string | null;
+  @ApiProperty({ description: 'Price' })
+  price!: number;
 
   @ApiPropertyOptional({ description: 'Brand' })
   brand?: string | null;

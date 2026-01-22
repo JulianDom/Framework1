@@ -10,6 +10,7 @@ export interface IOperativeUserRepository {
   findById(id: string): Promise<OperativeUserEntity | null>;
   findByEmail(email: string): Promise<OperativeUserEntity | null>;
   findByUsername(username: string): Promise<OperativeUserEntity | null>;
+  findByRefreshToken(refreshToken: string): Promise<OperativeUserEntity | null>;
   findAll(page?: number, limit?: number, enabledOnly?: boolean): Promise<{ data: OperativeUserEntity[]; total: number }>;
   findEnabled(): Promise<OperativeUserEntity[]>;
   findByCreatedBy(adminId: string): Promise<OperativeUserEntity[]>;

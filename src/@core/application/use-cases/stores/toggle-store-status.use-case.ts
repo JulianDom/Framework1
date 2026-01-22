@@ -9,8 +9,8 @@ export interface ToggleStoreStatusInput {
 export interface ToggleStoreStatusOutput {
   id: string;
   name: string;
-  code: string;
-  address: string;
+  locality: string;
+  zone: string | null;
   active: boolean;
 }
 
@@ -39,8 +39,8 @@ export class ToggleStoreStatusUseCase {
     return {
       id: updated.id!,
       name: updated.name,
-      code: updated.code,
-      address: updated.address,
+      locality: updated.locality,
+      zone: updated.zone,
       active: updated.active,
     };
   }

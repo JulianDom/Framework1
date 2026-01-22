@@ -108,3 +108,13 @@ export class AccountDisabledException extends DomainException {
     this.name = 'AccountDisabledException';
   }
 }
+
+/**
+ * Token inválido o expirado
+ */
+export class InvalidTokenException extends DomainException {
+  constructor(message: string = 'Invalid or expired token') {
+    super('INVALID_TOKEN', message, 401);
+    this.name = 'InvalidTokenException';
+  }
+}

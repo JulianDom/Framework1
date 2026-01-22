@@ -226,14 +226,14 @@ export class PriceRecordRepository
       product: {
         id: record.product.id,
         name: record.product.name,
-        sku: record.product.sku,
+        brand: record.product.brand,
         presentation: record.product.presentation,
       },
       store: {
         id: record.store.id,
         name: record.store.name,
-        code: record.store.code,
-        address: record.store.address,
+        locality: record.store.locality,
+        zone: record.store.zone,
       },
       operativeUser: {
         id: record.operativeUser.id,
