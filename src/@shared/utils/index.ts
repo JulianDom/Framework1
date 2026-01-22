@@ -4,6 +4,4 @@
  * Funciones helper y utilidades genéricas.
  */
 
-// Export your utilities here
-
-export {};
+export * from './query-parser.util';

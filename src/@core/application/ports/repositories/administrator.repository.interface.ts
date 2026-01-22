@@ -10,7 +10,7 @@ export interface IAdministratorRepository {
   findById(id: string): Promise<AdministratorEntity | null>;
   findByEmail(email: string): Promise<AdministratorEntity | null>;
   findByUsername(username: string): Promise<AdministratorEntity | null>;
-  findAll(page?: number, limit?: number): Promise<{ data: AdministratorEntity[]; total: number }>;
+  findAll(page?: number, limit?: number, enabledOnly?: boolean): Promise<{ data: AdministratorEntity[]; total: number }>;
   findEnabled(): Promise<AdministratorEntity[]>;
   create(entity: AdministratorEntity): Promise<AdministratorEntity>;
   update(id: string, entity: Partial<AdministratorEntity>): Promise<AdministratorEntity>;

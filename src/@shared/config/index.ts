@@ -5,3 +5,4 @@
  */
 
 export * from './jwt.config';
+export * from './filter-configs';

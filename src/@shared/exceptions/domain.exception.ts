@@ -50,6 +50,16 @@ export class EntityDuplicatedException extends DomainException {
 }
 
 /**
+ * Conflicto - Alias de EntityDuplicatedException para compatibilidad
+ */
+export class ConflictException extends DomainException {
+  constructor(message: string, details?: Record<string, unknown>) {
+    super('CONFLICT', message, 409, details);
+    this.name = 'ConflictException';
+  }
+}
+
+/**
  * Operación no permitida
  */
 export class ForbiddenOperationException extends DomainException {

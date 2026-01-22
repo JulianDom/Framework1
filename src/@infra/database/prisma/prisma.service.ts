@@ -1,5 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import 'dotenv/config';
 
 /**
@@ -7,26 +9,42 @@ import 'dotenv/config';
  *
  * Extiende PrismaClient con lifecycle hooks de NestJS.
  *
- * NOTA: En Prisma 7+, la configuración del datasource se hace en prisma.config.ts,
- * no en el constructor de PrismaClient.
+ * NOTA: En Prisma 7+, se requiere un adapter para conectar con la base de datos.
+ * Usamos @prisma/adapter-pg para PostgreSQL.
  */
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
+  private readonly pool: Pool;
 
   constructor() {
-    // Prisma 7: datasource URL se configura en prisma/prisma.config.ts
-    // Solo pasamos opciones de logging aquí
+    const connectionString = process.env['DATABASE_URL'];
+
+    if (!connectionString) {
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+
+    // Crear pool de conexiones de PostgreSQL
+    const pool = new Pool({ connectionString });
+
+    // Crear adapter de Prisma para PostgreSQL
+    const adapter = new PrismaPg(pool);
+
+    // Prisma 7: requiere adapter para conectar
     super({
-      log: process.env['NODE_ENV'] === 'development'
-        ? [
-            { emit: 'stdout', level: 'query' },
-            { emit: 'stdout', level: 'info' },
-            { emit: 'stdout', level: 'warn' },
-            { emit: 'stdout', level: 'error' },
-          ]
-        : [{ emit: 'stdout', level: 'error' }],
+      adapter,
+      log:
+        process.env['NODE_ENV'] === 'development'
+          ? [
+              { emit: 'stdout', level: 'query' },
+              { emit: 'stdout', level: 'info' },
+              { emit: 'stdout', level: 'warn' },
+              { emit: 'stdout', level: 'error' },
+            ]
+          : [{ emit: 'stdout', level: 'error' }],
     });
+
+    this.pool = pool;
   }
 
   async onModuleInit() {
@@ -39,6 +57,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   async onModuleDestroy() {
     await this.$disconnect();
+    await this.pool.end();
     this.logger.log('Database disconnected');
   }
 }

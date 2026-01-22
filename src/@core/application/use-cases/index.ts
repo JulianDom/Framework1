@@ -6,3 +6,8 @@
 
 export * from './auth';
 export * from './chat';
+export * from './administrators';
+export * from './operative-users';
+export * from './products';
+export * from './stores';
+export * from './price-records';

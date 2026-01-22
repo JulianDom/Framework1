@@ -5,6 +5,7 @@
  */
 
 export * from './pagination.types';
+export * from './filter.types';
 export * from './response.types';
 export * from './entity.types';
 export * from './auth.types';

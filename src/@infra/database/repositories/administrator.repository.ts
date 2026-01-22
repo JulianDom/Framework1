@@ -62,11 +62,31 @@ export class AdministratorRepository
   }
 
   // @ts-expect-error - Override with different signature to match IAdministratorRepository
-  override async findAll(page = 1, limit = 10): Promise<{ data: AdministratorEntity[]; total: number }> {
-    const result = await super.findPaginated({ page, limit });
+  override async findAll(
+    page = 1,
+    limit = 10,
+    enabledOnly = false,
+  ): Promise<{ data: AdministratorEntity[]; total: number }> {
+    const skip = (page - 1) * limit;
+    const whereCondition: Record<string, unknown> = { deletedAt: null };
+
+    if (enabledOnly) {
+      whereCondition['enabled'] = true;
+    }
+
+    const [data, total] = await Promise.all([
+      this.model.findMany({
+        where: whereCondition,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.model.count({ where: whereCondition }),
+    ]);
+
     return {
-      data: result.data,
-      total: result.meta.totalItems,
+      data: data.map((d: Administrator) => this.toEntity(d)),
+      total,
     };
   }
 

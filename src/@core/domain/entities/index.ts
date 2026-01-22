@@ -7,3 +7,7 @@
 
 export * from './user.entity';
 export * from './administrator.entity';
+export * from './operative-user.entity';
+export * from './product.entity';
+export * from './store.entity';
+export * from './price-record.entity';

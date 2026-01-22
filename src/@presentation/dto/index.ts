@@ -1,9 +1,7 @@
 /**
  * Presentation DTOs
  *
- * Data Transfer Objects para la capa de presentación (API).
+ * Data Transfer Objects base para la capa de presentación (API).
  */
 
-// Export your DTOs here
-
-export {};
+export * from './base-query.dto';

@@ -140,15 +140,18 @@ El token debe obtenerse del endpoint \`/api/v1/auth/login\`.
         },
         'API-key',
       )
+      .addTag('health', 'Health Check')
       .addTag('auth', 'Authentication & Authorization')
-      .addTag('users', 'User Management')
-      .addTag('administrators', 'Administrator Management')
+      .addTag('administrators', 'Épica 4: Gestión de Administradores')
+      .addTag('operative-users', 'Épica 5: Gestión de Usuarios Operativos')
+      .addTag('products', 'Épica 6: Gestión de Productos')
+      .addTag('stores', 'Épica 7: Gestión de Locales')
+      .addTag('price-records', 'Épica 8: Visualización de Precios')
       .addTag('chat', 'Real-time Chat & Messaging')
       .addTag('notifications', 'Push Notifications')
       .addTag('payments', 'MercadoPago Integration')
       .addTag('files', 'File Upload & Export')
       .addTag('webhooks', 'External Webhooks')
-      .addTag('health', 'Health Check')
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig, {
