@@ -7,7 +7,7 @@ import {
   MAX_LIMIT,
 } from '@shared/types';
 import { EntityNotFoundException } from '@shared/exceptions';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma';
 
 /**
  * EntityMapper<PrismaModel, DomainEntity>

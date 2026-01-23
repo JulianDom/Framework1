@@ -4,14 +4,20 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaModule } from '@infra/database/prisma';
+
+// Nueva arquitectura - Database
+import { PrismaModule } from '@database/prisma.module';
+
+// Nueva arquitectura - Modulos de negocio simplificados
+import { ProductsModule } from '@modules/products';
+import { StoresModule } from '@modules/stores';
+import { OperativeUsersModule } from '@modules/operative-users';
+import { PriceRecordsModule } from '@modules/price-records';
+
+// Modulos existentes (pendientes de migracion)
 import { AuthModule } from '@infra/security/auth.module';
 import { AuthPresentationModule } from '@presentation/controllers/auth/auth.module';
 import { AdministratorsPresentationModule } from '@presentation/controllers/administrators/administrators.module';
-import { OperativeUsersPresentationModule } from '@presentation/controllers/operative-users/operative-users.module';
-import { ProductsPresentationModule } from '@presentation/controllers/products/products.module';
-import { StoresPresentationModule } from '@presentation/controllers/stores/stores.module';
-import { PriceRecordsPresentationModule } from '@presentation/controllers/price-records/price-records.module';
 import { QueueModule } from '@infra/queues';
 import { NotificationProcessor } from '@infra/queues/processors';
 import { ChatModule } from '@presentation/gateways';
@@ -23,15 +29,24 @@ import { ProvidersModule } from '@infra/providers';
       isGlobal: true,
       envFilePath: '.env',
     }),
+
+    // Database
     PrismaModule,
+
+    // Auth (mantiene estructura existente)
     AuthModule,
-    // Presentation Modules
     AuthPresentationModule,
-    AdministratorsPresentationModule, // Épica 4
-    OperativeUsersPresentationModule, // Épica 5
-    ProductsPresentationModule,       // Épica 6
-    StoresPresentationModule,         // Épica 7
-    PriceRecordsPresentationModule,   // Épica 8
+
+    // Modulos migrados a nueva arquitectura
+    ProductsModule,
+    StoresModule,
+    OperativeUsersModule,
+    PriceRecordsModule,
+
+    // Modulos pendientes de migracion
+    AdministratorsPresentationModule,
+
+    // Servicios
     QueueModule,
     ChatModule,
     ProvidersModule,

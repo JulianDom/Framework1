@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx:*)",
+      "Bash(tree:*)",
+      "Bash(npm run build:*)",
+      "Bash(pushd:*)",
+      "Bash(popd)",
+      "Bash(pnpm --dir \"C:/Users/Julian/Documents/Cervak/productos-full/api\" run typecheck)",
+      "Bash(PNPM_HOME=\"$HOME/.local/share/pnpm\")",
+      "Bash(PATH=\"$PNPM_HOME:$PATH\")",
+      "Bash(Remove-Item \"c:\\\\Users\\\\Julian\\\\Documents\\\\Cervak\\\\productos-full\\\\api\\\\src\\\\@infra\\\\database\\\\prisma\\\\prisma.service.ts\")"
+    ]
+  }
+}
